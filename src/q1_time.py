@@ -3,6 +3,11 @@ import ujson
 from typing import List, Tuple
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor
+import logging
+
+# Configuración básica del logger
+logging.basicConfig(filename='error_log.log', level=logging.ERROR, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Función para analizar un bloque de líneas del archivo JSON
 def parse_json_lines(lines: List[str]) -> List[Tuple[str, str]]:
@@ -14,8 +19,9 @@ def parse_json_lines(lines: List[str]) -> List[Tuple[str, str]]:
             # Verifica que los campos necesarios estén presentes antes de agregar
             if 'date' in item and 'user' in item and 'id' in item:
                 result.append((item['date'], item['user']['username']))
-        except ValueError:
-            # Maneja errores de decodificación JSON
+        except ValueError as e:
+            # Registra el error en el archivo log
+            logging.error(f"Error decoding JSON: {str(e)} - Line: {line.strip()}")
             continue
     return result
 

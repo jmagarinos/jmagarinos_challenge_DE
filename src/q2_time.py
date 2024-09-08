@@ -1,8 +1,13 @@
 from collections import Counter
 from typing import List, Tuple
-import ujson as json  # Usar ujson para un análisis JSON más rápido
+import ujson as json
 import emoji
 from concurrent.futures import ThreadPoolExecutor
+import logging
+
+# Configuración básica del logger
+logging.basicConfig(filename='error_log.log', level=logging.ERROR,
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Función para procesar un grupo de líneas y contar emojis
 def process_lines(lines: List[str]) -> Counter:
@@ -14,7 +19,9 @@ def process_lines(lines: List[str]) -> Counter:
             if content:
                 for value in emoji.analyze(content):
                     emoji_counter[value.chars] += 1
-        except (json.JSONDecodeError, KeyError):
+        except (json.JSONDecodeError, KeyError) as e:
+            # Manejar errores de decodificación JSON y de clave faltante, escribir en log
+            logging.error(f"Error processing line: {str(e)} - Line: {line.strip()}")
             continue
     return emoji_counter
 

@@ -2,6 +2,11 @@ from typing import List, Tuple
 from datetime import datetime
 import pandas as pd
 import json
+import logging
+
+# Configuración básica del logger
+logging.basicConfig(filename='error_log.log', level=logging.ERROR, 
+                    format='%(asctime)s - %(levelname)s - %(message)s')
 
 def q1_memory(file_path: str) -> List[Tuple[datetime.date, str]]:
     # Leer el archivo JSON línea por línea y procesarlo
@@ -13,9 +18,9 @@ def q1_memory(file_path: str) -> List[Tuple[datetime.date, str]]:
                 # Verificar que los campos necesarios están presentes antes de agregar
                 if 'date' in item and 'user' in item and 'id' in item:
                     data.append((item['date'], item['user']['username']))
-            except json.JSONDecodeError:
-                # Manejar errores de decodificación JSON
-                continue
+            except json.JSONDecodeError as e:
+                # Manejar errores de decodificación JSON y escribir en el log
+                logging.error(f"Error decoding JSON: {str(e)} - Line: {line.strip()}")
     
     # Convertir la lista de tuplas en un DataFrame de pandas
     df = pd.DataFrame(data, columns=['date', 'user'])
